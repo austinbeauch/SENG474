@@ -14,8 +14,6 @@ def matrix(df, eps):
     sims = {}
     start = time.time()
     for i in d:
-        # if i > 100:
-        #     break
         sims[i] = ""
         q1 = d[i]
         del d2[i]
@@ -23,8 +21,7 @@ def matrix(df, eps):
         for j in d2:
             q2 = d2[j]
             sim = get_jaccard_sim(q1, q2)
-            if sim > eps:
-                # sims[i].append(j)
+            if sim >= eps:
                 sims[i] += str(j) if sims[i] == "" else "," + str(j)
     
     print("Loop time:", time.time() - start)
@@ -42,7 +39,8 @@ if __name__ == "__main__":
     n = "10"
     fpath = f"../data/question_{n}k.tsv"
     data = pd.read_table(fpath, index_col=0)
-    # panda(data)
+
     e = 0.6
+    
     s = matrix(data, e)
     make_dict(s, n)
