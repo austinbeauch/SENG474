@@ -34,7 +34,7 @@ def make_dict(d, n):
         f.write("qid\tsimilar-qids\n")
         for key in d:
             val = d[key]
-            f.write(f"{key}\t{val}\n")
+            f.write("{}\t{}\n".format(key, value))
 
 
 if __name__ == "__main__":
