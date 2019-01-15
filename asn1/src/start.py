@@ -16,7 +16,7 @@ def matrix(df, eps):
     for i in d:
         sims[i] = ""
         q1 = d[i]
-        del d2[i]
+        # del d2[i]
 
         for j in d2:
             q2 = d2[j]
