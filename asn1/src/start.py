@@ -9,7 +9,7 @@ from similarities import get_jaccard_sim
 
 def matrix(df, eps):
     d = df.to_dict()['question']
-    d2 = deepcopy(d)
+    # d2 = deepcopy(d)
 
     sims = {}
     start = time.time()
@@ -18,8 +18,10 @@ def matrix(df, eps):
         q1 = d[i]
         # del d2[i]
 
-        for j in d2:
-            q2 = d2[j]
+        for j in d:
+            if i == j: 
+                continue
+            q2 = d[j]
             sim = get_jaccard_sim(q1, q2)
             if sim >= eps:
                 sims[i] += str(j) if sims[i] == "" else "," + str(j)
@@ -28,7 +30,7 @@ def matrix(df, eps):
     return sims
 
 def make_dict(d, n):
-    with open(f"question_sim_{n}k.tsv", "w+") as f:
+    with open("question_sim_{}k.tsv".format(n), "w+") as f:
         f.write("qid\tsimilar-qids\n")
         for key in d:
             val = d[key]
@@ -37,7 +39,7 @@ def make_dict(d, n):
 
 if __name__ == "__main__":
     n = "10"
-    fpath = f"../data/question_{n}k.tsv"
+    fpath = "../data/question_{}k.tsv".format(n)
     data = pd.read_table(fpath, index_col=0)
 
     e = 0.6
