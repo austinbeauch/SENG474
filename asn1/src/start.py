@@ -1,7 +1,7 @@
 import time
 import csv
 from copy import deepcopy
-
+import numpy
 import pandas as pd
 
 from similarities import get_jaccard_sim
@@ -10,6 +10,8 @@ from similarities import get_jaccard_sim
 def matrix(df, eps):
     d = df.to_dict()['question']
     # d2 = deepcopy(d)
+	
+	
 
     sims = {}
     start = time.time()
@@ -38,11 +40,12 @@ def make_dict(d, n):
 
 
 if __name__ == "__main__":
-    n = "10"
+    n = "4"
     fpath = "../data/question_{}k.tsv".format(n)
     data = pd.read_table(fpath, index_col=0)
 
     e = 0.6
     
     s = matrix(data, e)
+    print(numpy.min(np.array(s.values().astype(int))))
     make_dict(s, n)
