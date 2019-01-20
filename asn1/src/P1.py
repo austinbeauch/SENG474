@@ -4,33 +4,27 @@ import csv
 from copy import deepcopy
 from pprint import pprint
 
-
-# https://towardsdatascience.com/overview-of-text-similarity-metrics-3397c4601f50
-def get_jaccard_sim(str1, str2): 
-    a = set(str1.split()) 
-    b = set(str2.split())
-    c = a.intersection(b)
-    return float(len(c)) / (len(a) + len(b) - len(c))
+from similarities import jaccard_sim
 
 
 def matrix(d, eps):
-    sims = {}
+    similar_qids = {}
     start = time.time()
-    for i in d:
-        sims[i] = ""
-        q1 = d[i]
-        # del d2[i]
+    for qid1 in d:
+        similar_qids[qid1] = ""
+        q1 = d[qid1]
 
-        for j in d:
-            if i == j: 
+        for qid2 in d:
+            if qid1 == qid2: 
                 continue
-            q2 = d[j]
-            sim = get_jaccard_sim(q1, q2)
+
+            q2 = d[qid2]
+            sim = jaccard_sim(q1, q2)
             if sim >= eps:
-                sims[i] += str(j) if sims[i] == "" else "," + str(j)
+                similar_qids[qid1] += str(qid2) if similar_qids[qid1] == "" else "," + str(qid2)
     
     print("Loop time:", time.time() - start)
-    return sims
+    return similar_qids
 
     
 def make_dict(d, n):
@@ -38,7 +32,7 @@ def make_dict(d, n):
         f.write("qid\tsimilar-qids\n")
         for key in d:
             val = d[key]
-            f.write("{}\t{}\n".format(key, value))
+            f.write("{}\t{}\n".format(key, val))
 
 
 if __name__ == "__main__":
@@ -57,7 +51,7 @@ if __name__ == "__main__":
             data[qid] = question
         except ValueError:
             continue
-    pprint(data)
+    # pprint(data)
     
     e = 0.6
     
