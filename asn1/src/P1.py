@@ -9,7 +9,7 @@ from similarities import jaccard_sim
 
 def matrix(d, eps):
     similar_qids = {}
-    start = time.time()
+
     for qid1 in d:
         similar_qids[qid1] = ""
         q1 = d[qid1]
@@ -23,7 +23,6 @@ def matrix(d, eps):
             if sim >= eps:
                 similar_qids[qid1] += str(qid2) if similar_qids[qid1] == "" else "," + str(qid2)
     
-    print("Loop time:", time.time() - start)
     return similar_qids
 
     
@@ -36,6 +35,8 @@ def make_dict(d, n):
 
 
 if __name__ == "__main__":
+    start = time.time()
+    
     n = "4"
     fpath = "../data/question_{}k.tsv".format(n)
     lines = [line.rstrip("\n") for line in open(fpath, encoding="utf8")]
@@ -57,3 +58,5 @@ if __name__ == "__main__":
     
     s = matrix(data, e)
     make_dict(s, n)
+
+    print("Runtime:", time.time() - start)
