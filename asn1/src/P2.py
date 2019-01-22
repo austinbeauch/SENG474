@@ -47,34 +47,45 @@ def ground_set(lines):
 
 @timeit
 def main(lines):
-	a = [uuid.uuid4().int & (1<<64)-1 for i in range(0, s)]
-	b = [uuid.uuid4().int & (1<<64)-1 for i in range(0, s)]
+	A = [uuid.uuid4().int & (1<<64)-1 for i in range(s)]
+	B = [uuid.uuid4().int & (1<<64)-1 for i in range(s)]
+	
+	dictionaries = [{} for i in range(s)] 
 
 	U = ground_set(lines)
 	n = len(U)
 
-	permutations = [[i for i in range(n)] for _ in range(r)]
-	
-	for pi in permutations:
-		shuffle(pi)
+	for idx in range(s):
+		a = A[idx]
+		b = B[idx]
+		for word in U:
+			print(word)
+			h = hash_function(a, b, word)
+			dictionaries[idx][word] = h
+			print(dictionaries[idx])
+			exit()
 
 	m = 1
 	for line in lines[1:]:
 		try:
+			item_set = set()
 			qid, question = get_qid_question(line)
-			for word in question.split():
-				hashcode = fnv.hash(word.encode("utf-8"), bits=64)
+			item_set.update(question.split())
+			pprint(item_set)
+
+			exit()
 
 		except ValueError:
 			continue
 	return m
 
-def hash_function(a, b, fnvh):
-	hf = (a * fnvh + b) % p
+def hash_function(a, b, word):
+	encoded_word = fnv.hash(word.encode("utf-8"), bits=64)
+	hf = (a * encoded_word + b) % p
 	return hf
 
 if __name__ == "__main__":
-	n = "150"
+	n = "1"
 	fpath = "../data/question_{}k.tsv".format(n)
 	l = [line.rstrip("\n")for line in open(fpath, encoding = "utf8")]
 	m = main(l)
