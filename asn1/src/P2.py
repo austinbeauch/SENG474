@@ -54,6 +54,7 @@ def main(lines):
 	n = len(U)
 
 	permutations = [[i for i in range(n)] for _ in range(r)]
+	
 	for pi in permutations:
 		shuffle(pi)
 
