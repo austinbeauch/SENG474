@@ -49,7 +49,13 @@ def ground_set(lines):
 def main(lines):
 	a = [uuid.uuid4().int & (1<<64)-1 for i in range(0, s)]
 	b = [uuid.uuid4().int & (1<<64)-1 for i in range(0, s)]
+
 	U = ground_set(lines)
+	n = len(U)
+
+	permutations = [[i for i in range(n)] for _ in range(r)]
+	for pi in permutations:
+		shuffle(pi)
 
 	m = 1
 	for line in lines[1:]:
