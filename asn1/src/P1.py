@@ -1,10 +1,9 @@
-import re
 import time
 import csv
 from copy import deepcopy
 from pprint import pprint
 
-from similarities import jaccard_sim
+from utils import jaccard_sim, get_qid_question, timeit
 
 
 def matrix(d, eps):
@@ -36,7 +35,7 @@ def make_dict(d, n):
 
 if __name__ == "__main__":
     start = time.time()
-    
+
     n = "4"
     fpath = "../data/question_{}k.tsv".format(n)
     lines = [line.rstrip("\n") for line in open(fpath, encoding="utf8")]
@@ -44,18 +43,14 @@ if __name__ == "__main__":
     words = []
     data = {}
     word_freq = {}
-    for i in lines[1:]:
+    for line in lines[1:]:
         try:
-            qid, question = i.split("\t")
-            question = re.sub(r'[^a-zA-Z0-9 ]+', r'', question)
-            question = question.lower()
+            qid, question = get_qid_question(line)
             data[qid] = question
         except ValueError:
             continue
-    # pprint(data)
     
     e = 0.6
-    
     s = matrix(data, e)
     make_dict(s, n)
 

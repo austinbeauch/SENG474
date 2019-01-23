@@ -1,10 +1,10 @@
 import uuid
 import time
-import re
 from pprint import pprint
 from random import shuffle
 
 import fnv
+from utils import timeit
 
 
 p = 15373875993579943603
@@ -13,23 +13,20 @@ s = 14
 r = 6
 
 
-def timeit(method):
-	def timed(*args, **kw):
-		ts = time.time()
-		result = method(*args, **kw)
-		te = time.time()
-		print('%r  %2.2f s' % \
-				(method.__name__, (te - ts)))
-		return result
-	return timed
+def hash_function(a, b, word):
+	encoded_word = fnv.hash(word.encode("utf-8"), bits=64)
+	hf = (a * encoded_word + b) % p
+	return hf
+
 
 def get_qid_question(line):
+	"""Return qid and question from tab separated line, filter out puncuation and lowercase all letters"""
 	qid, question = line.split("\t")
-	question = re.sub(r'[^a-zA-Z0-9 ]+', r'', question)
+	question = re.sub(r'[\p{P} ]+', r'', question)
 	question = question.lower()
 	return qid, question
 
-@timeit
+
 def ground_set(lines):
 	"""Creates ground set of all unique words given in lines"""
 	u = set()
@@ -41,16 +38,13 @@ def ground_set(lines):
 				continue
 	return sorted(list(u))
 
-@timeit
-def main(lines):
+
+def build_table(lines, U):
 	A = [uuid.uuid4().int & (1<<64)-1 for i in range(r)]
 	B = [uuid.uuid4().int & (1<<64)-1 for i in range(r)]
-	
 	permutations = [{} for i in range(r)] 
 
-	U = ground_set(lines)
-	n = len(U)
-
+	# hashing each word in ground set, storing in dictionary
 	for idx in range(r):
 		a = A[idx]
 		b = B[idx]
@@ -58,37 +52,39 @@ def main(lines):
 			h = hash_function(a, b, word)
 			permutations[idx][word] = h
 
-	m = 1
 	signatures = {}
+	questions = {}
 	for line in lines[1:]:
 		try:
 			item_set = set()
 			qid, question = get_qid_question(line)
-			item_set.update(question.split())
+			questions[qid] = question  # store original qid, question
+			item_set.update(question.split())  # get unique words
 			minhash_vect = []
+			
 			for i in permutations:
-				minhash_vect.append(min([i[item] for item in item_set]))
-			signatures[qid] = minhash_vect
-
+				minhash_vect.append(min([i[item] for item in item_set]))  # computre minhash signature
+			
+			signatures[qid] = minhash_vect  # store minhash signature in signature dict at key qid
+		
 		except ValueError:
 			continue
 
-	for i in signatures:
-		for j in signatures:
-			if i == j:
-				continue
-			if signatures[i] == signatures[j]:
-				print(i, j)
+	return signatures
 
-	return m
 
-def hash_function(a, b, word):
-	encoded_word = fnv.hash(word.encode("utf-8"), bits=64)
-	hf = (a * encoded_word + b) % p
-	return hf
+@timeit
+def main(path):
+	lines = [line.rstrip("\n")for line in open(path, encoding = "utf8")]
+	U = ground_set(lines)
+
+	D = {}
+	for i in range(s):
+		D[i] = build_table(lines, U)
+
 
 if __name__ == "__main__":
 	n = "4"
 	fpath = "../data/question_{}k.tsv".format(n)
-	l = [line.rstrip("\n")for line in open(fpath, encoding = "utf8")]
-	m = main(l)
+
+	main(fpath)
