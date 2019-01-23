@@ -19,14 +19,6 @@ def hash_function(a, b, word):
 	return hf
 
 
-def get_qid_question(line):
-	"""Return qid and question from tab separated line, filter out puncuation and lowercase all letters"""
-	qid, question = line.split("\t")
-	question = re.sub(r'[\p{P} ]+', r'', question)
-	question = question.lower()
-	return qid, question
-
-
 def ground_set(lines):
 	"""Creates ground set of all unique words given in lines"""
 	u = set()
