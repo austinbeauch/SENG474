@@ -3,13 +3,14 @@ from pprint import pprint
 from random import shuffle
 
 import fnv
-from utils import timeit, get_qid_question
+from utils import timeit, get_qid_question, jaccard_sim
 
 
 p = 15373875993579943603
 x = 0.6
 s = 14
 r = 6
+ult_minhash = {}
 
 
 def hash_function(a, b, word):
@@ -31,6 +32,7 @@ def ground_set(lines):
 
 
 def build_table(lines, U):
+	global ult_minhash
 	A = [uuid.uuid4().int & (1<<64)-1 for i in range(r)]
 	B = [uuid.uuid4().int & (1<<64)-1 for i in range(r)]
 	permutations = [{} for i in range(r)] 
@@ -45,6 +47,8 @@ def build_table(lines, U):
 
 	signatures = {}
 	questions = {}
+
+
 	for line in lines[1:]:
 		try:
 			item_set = set()
@@ -54,14 +58,27 @@ def build_table(lines, U):
 			minhash_vect = []
 			
 			for i in permutations:
-				minhash_vect.append(min([i[item] for item in item_set]))  # computre minhash signature
+				minhash_vect.append(min([i[item] for item in item_set]))  # compute minhash signature
 			
-			signatures[qid] = minhash_vect  # store minhash signature in signature dict at key qid
+			try:
+				ult_minhash[qid].append(str(minhash_vect))
+			except KeyError:
+				ult_minhash[qid] = [str(minhash_vect)]
+
+			# store qid at minhash signature
+			try:
+				signatures[str(minhash_vect)].append(qid)
+			except KeyError:
+				signatures[str(minhash_vect)] = [qid]
 		
 		except ValueError:
 			continue
 
 	return signatures
+
+
+def findsim(table):
+	pass
 
 
 @timeit
@@ -72,11 +89,11 @@ def main(path):
 	D = {}
 	for i in range(s):
 		D[i] = build_table(lines, U)
-	
-	#pprint(D[0])
+
 
 if __name__ == "__main__":
-	n = "290"
-	fpath = "../data/questions_{}k.tsv".format(n)
+	n = "1"
+	fpath = "../data/question_{}k.tsv".format(n)
 
 	main(fpath)
+	
