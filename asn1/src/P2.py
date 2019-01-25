@@ -11,7 +11,7 @@ x = 0.6
 s = 14
 r = 6
 ult_minhash = {}
-
+questions = {}
 
 def hash_function(a, b, word):
 	encoded_word = fnv.hash(word.encode("utf-8"), bits=64)
@@ -32,7 +32,7 @@ def ground_set(lines):
 
 
 def build_table(lines, U):
-	global ult_minhash
+	global ult_minhash, questions
 	A = [uuid.uuid4().int & (1<<64)-1 for i in range(r)]
 	B = [uuid.uuid4().int & (1<<64)-1 for i in range(r)]
 	permutations = [{} for i in range(r)] 
@@ -46,8 +46,6 @@ def build_table(lines, U):
 			permutations[idx][word] = h
 
 	signatures = {}
-	questions = {}
-
 
 	for line in lines[1:]:
 		try:
@@ -78,6 +76,26 @@ def build_table(lines, U):
 
 
 def findsim(table):
+	for qid in ult_minhash:
+		# print(qid)
+		signatures = ult_minhash[qid]
+		common_set = set()
+		for sig, t in zip(signatures, table):
+			qids_at_minhash = table[t][sig]
+			common_set.update(qids_at_minhash)
+		# print(common_set)
+		# TODO: compute jaccard sim, print into .tsv file
+		for qid2 in common_set:
+			if qid == qid2:
+				continue
+			sim = jaccard_sim(questions[qid], questions[qid2])
+			if sim > x:
+				pass
+				# print(questions[qid])
+				# print(questions[qid2])
+				# print()
+				# TODO: write to file, or save
+			# print(sim)
 	pass
 
 
@@ -90,9 +108,10 @@ def main(path):
 	for i in range(s):
 		D[i] = build_table(lines, U)
 
+	findsim(D)
 
 if __name__ == "__main__":
-	n = "1"
+	n = "150"
 	fpath = "../data/question_{}k.tsv".format(n)
 
 	main(fpath)
