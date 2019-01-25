@@ -1,10 +1,9 @@
 import uuid
-import time
 from pprint import pprint
 from random import shuffle
 
 import fnv
-from utils import timeit
+from utils import timeit, get_qid_question
 
 
 p = 15373875993579943603
@@ -73,10 +72,11 @@ def main(path):
 	D = {}
 	for i in range(s):
 		D[i] = build_table(lines, U)
-
+	
+	#pprint(D[0])
 
 if __name__ == "__main__":
-	n = "4"
-	fpath = "../data/question_{}k.tsv".format(n)
+	n = "290"
+	fpath = "../data/questions_{}k.tsv".format(n)
 
 	main(fpath)
