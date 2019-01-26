@@ -107,7 +107,7 @@ def findsim(table, n):
 			if sim >= x:
 				similar_qids[qid] += str(qid2) if similar_qids[qid] == "" else "," + str(qid2)
 
-	make_dict(similar_qids, n + "hash")
+	make_dict(similar_qids, n)
 
 
 @timeit
