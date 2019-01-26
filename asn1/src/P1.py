@@ -1,12 +1,13 @@
+import sys
 import time
 import csv
 from copy import deepcopy
 from pprint import pprint
 
-from utils import jaccard_sim, get_qid_question, timeit
+from utils import jaccard_sim, get_qid_question, timeit, make_dict
 
 
-def matrix(d, eps):
+def matrix(d, x):
     similar_qids = {}
 
     for qid1 in d:
@@ -19,25 +20,14 @@ def matrix(d, eps):
 
             q2 = d[qid2]
             sim = jaccard_sim(q1, q2)
-            if sim >= eps:
+            if sim >= x:
                 similar_qids[qid1] += str(qid2) if similar_qids[qid1] == "" else "," + str(qid2)
     
     return similar_qids
 
-    
-def make_dict(d, n):
-    with open("question_sim_{}k.tsv".format(n), "w+") as f:
-        f.write("qid\tsimilar-qids\n")
-        for key in d:
-            val = d[key]
-            f.write("{}\t{}\n".format(key, val))
 
-
-if __name__ == "__main__":
-    start = time.time()
-
-    n = "4"
-    fpath = "../data/question_{}k.tsv".format(n)
+@timeit
+def main(n, fpath):
     lines = [line.rstrip("\n") for line in open(fpath, encoding="utf8")]
     
     words = []
@@ -50,8 +40,16 @@ if __name__ == "__main__":
         except ValueError:
             continue
     
-    e = 0.6
-    s = matrix(data, e)
+    x = 0.6
+    s = matrix(data, x)
     make_dict(s, n)
 
-    print("Runtime:", time.time() - start)
+
+if __name__ == "__main__":
+    try:
+        n = sys.argv[1]
+    except IndexError:
+        n = "4"
+
+    f = "../data/question_{}k.tsv".format(n)
+    main(n, f)

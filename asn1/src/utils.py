@@ -17,6 +17,14 @@ def get_qid_question(line):
 	return qid, question
 
 
+def make_dict(d, n):
+    with open("question_sim_{}k.tsv".format(n), "w+") as f:
+        f.write("qid\tsimilar-qids\n")
+        for key in d:
+            val = d[key]
+            f.write("{}\t{}\n".format(key, val))
+
+
 def timeit(method):
 	def timed(*args, **kw):
 		ts = time.time()
