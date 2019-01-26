@@ -33,7 +33,6 @@ def make_dict(d, n):
             f.write("{}\t{}\n".format(key, val))
 
 
-@timeit
 if __name__ == "__main__":
     start = time.time()
 
