@@ -1,3 +1,4 @@
+import sys
 import uuid
 from pprint import pprint
 from random import shuffle
@@ -12,6 +13,7 @@ s = 14
 r = 6
 ult_minhash = {}
 questions = {}
+
 
 def hash_function(a, b, word):
 	encoded_word = fnv.hash(word.encode("utf-8"), bits=64)
@@ -31,6 +33,7 @@ def ground_set(lines):
 	return sorted(list(u))
 
 
+@timeit
 def build_table(lines, U):
 	global ult_minhash, questions
 	A = [uuid.uuid4().int & (1<<64)-1 for i in range(r)]
@@ -75,32 +78,33 @@ def build_table(lines, U):
 	return signatures
 
 
-def findsim(table):
+@timeit
+def findsim(table, n):
+	f = open("question_sim_{}k_hash.tsv".format(n), "w+")
+	f.write("qid\tsimilar-qids\n")
+
 	for qid in ult_minhash:
-		# print(qid)
+		f.write("{}\t".format(qid))
 		signatures = ult_minhash[qid]
 		common_set = set()
+
 		for sig, t in zip(signatures, table):
 			qids_at_minhash = table[t][sig]
 			common_set.update(qids_at_minhash)
-		# print(common_set)
-		# TODO: compute jaccard sim, print into .tsv file
+		
 		for qid2 in common_set:
 			if qid == qid2:
 				continue
+			
 			sim = jaccard_sim(questions[qid], questions[qid2])
-			if sim > x:
-				pass
-				# print(questions[qid])
-				# print(questions[qid2])
-				# print()
-				# TODO: write to file, or save
-			# print(sim)
-	pass
+			if sim >= x:
+				f.write("{},".format(qid2))
+		
+		f.write("\n")
 
 
 @timeit
-def main(path):
+def main(path, n):
 	lines = [line.rstrip("\n")for line in open(path, encoding = "utf8")]
 	U = ground_set(lines)
 
@@ -108,11 +112,14 @@ def main(path):
 	for i in range(s):
 		D[i] = build_table(lines, U)
 
-	findsim(D)
+	findsim(D, n)
 
 if __name__ == "__main__":
-	n = "150"
+	try:
+		n = sys.argv[1]
+	except IndexError:
+		n = "150"
 	fpath = "../data/question_{}k.tsv".format(n)
 
-	main(fpath)
+	main(fpath, n)
 	
