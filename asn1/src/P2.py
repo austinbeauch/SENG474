@@ -101,6 +101,7 @@ def findsim(table, n):
 				f.write("{},".format(qid2))
 		
 		f.write("\n")
+	f.close()
 
 
 @timeit
