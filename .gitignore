@@ -3,3 +3,5 @@ __pycache__/
 lab*
 question*
 .vscode
+
+data_100k_300.tsv
