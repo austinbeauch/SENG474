@@ -4,7 +4,7 @@ from pprint import pprint
 from random import shuffle
 
 import fnv
-from utils import timeit, get_qid_question, jaccard_sim
+from utils import timeit, get_qid_question, jaccard_sim, make_dict
 
 
 p = 15373875993579943603
@@ -36,14 +36,20 @@ def ground_set(lines):
 @timeit
 def build_table(lines, U):
 	global ult_minhash, questions
+
+	# random number generation in lists length r
 	A = [uuid.uuid4().int & (1<<64)-1 for i in range(r)]
 	B = [uuid.uuid4().int & (1<<64)-1 for i in range(r)]
+	
+	# creating r permutation dicts 
 	permutations = [{} for i in range(r)] 
 
-	# hashing each word in ground set, storing in dictionary
+	# hashing each word in ground set to create permutations, storing in dictionary
 	for idx in range(r):
 		a = A[idx]
 		b = B[idx]
+
+		# permute each word in the ground set
 		for word in U:
 			h = hash_function(a, b, word)
 			permutations[idx][word] = h
@@ -56,17 +62,19 @@ def build_table(lines, U):
 			qid, question = get_qid_question(line)
 			questions[qid] = question  # store original qid, question
 			item_set.update(question.split())  # get unique words
-			minhash_vect = []
 			
+			# compute minhash signature vector
+			minhash_vect = [] 
 			for i in permutations:
-				minhash_vect.append(min([i[item] for item in item_set]))  # compute minhash signature
+				minhash_vect.append(min([i[item] for item in item_set]))  
 			
+			# store minhash vector for qid for final similarity checking
 			try:
 				ult_minhash[qid].append(str(minhash_vect))
 			except KeyError:
 				ult_minhash[qid] = [str(minhash_vect)]
 
-			# store qid at minhash signature
+			# store qid at minhash signature for a single hash table (out of b tables)
 			try:
 				signatures[str(minhash_vect)].append(qid)
 			except KeyError:
@@ -78,16 +86,15 @@ def build_table(lines, U):
 	return signatures
 
 
-@timeit
 def findsim(table, n):
-	f = open("question_sim_{}k_hash.tsv".format(n), "w+")
-	f.write("qid\tsimilar-qids\n")
+	similar_qids = {}
 
 	for qid in ult_minhash:
-		f.write("{}\t".format(qid))
+		similar_qids[qid] = ""
 		signatures = ult_minhash[qid]
 		common_set = set()
 
+		# finding all qids with same minhash signature for final Jaccard sim check
 		for sig, t in zip(signatures, table):
 			qids_at_minhash = table[t][sig]
 			common_set.update(qids_at_minhash)
@@ -98,10 +105,9 @@ def findsim(table, n):
 			
 			sim = jaccard_sim(questions[qid], questions[qid2])
 			if sim >= x:
-				f.write("{},".format(qid2))
-		
-		f.write("\n")
-	f.close()
+				similar_qids[qid] += str(qid2) if similar_qids[qid] == "" else "," + str(qid2)
+
+	make_dict(similar_qids, n)
 
 
 @timeit
@@ -109,6 +115,7 @@ def main(path, n):
 	lines = [line.rstrip("\n")for line in open(path, encoding = "utf8")]
 	U = ground_set(lines)
 
+	# building s amount of tables, more redundancy = more accuracy
 	D = {}
 	for i in range(s):
 		D[i] = build_table(lines, U)
