@@ -23,3 +23,6 @@ def loss_func(x, y, w):
     return total / (2 * n)
 
     # return np.sum((y - w.T @ x)**2) / (2 * n)
+
+def output(n_samples, n_features, points, features):
+    pass

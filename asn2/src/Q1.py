@@ -3,7 +3,7 @@ from pprint import pprint
 
 import numpy as np
 
-from utils import timeit, loss_func
+from utils import timeit, loss_func, output
 
 
 @timeit
@@ -25,7 +25,6 @@ def main(n_samples, n_features):
 
     y = points
     X = features
-    # print(X.T @ X)
 
     w = np.linalg.inv(X.T @ X) @ (X.T @ y)
 
