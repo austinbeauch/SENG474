@@ -3,24 +3,15 @@ from pprint import pprint
 
 import numpy as np
 
-from utils import timeit, loss_func, output
+from utils import timeit, loss_func, tsv_points_features, output
 
 
 @timeit
 def main(n_samples, n_features):
     data_path = "../data/data_{}k_{}.tsv".format(n_samples, n_features)
-    print(data_path)
+    n_samples *= 1000
+    points, features, headings = tsv_points_features(data_path)
 
-    lines = [line.rstrip("\n") for line in open(data_path, encoding="utf8")]
-    n_samples, n_features = lines[:2]
-
-    
-    data = [line.split("\t") for line in lines[3:]]
-    data = np.array(data, dtype=float)
-    
-    points = data[:, 0]
-    features = data[:, 1:]
-    
     print(features.shape)
 
     y = points
@@ -30,6 +21,9 @@ def main(n_samples, n_features):
 
     loss = loss_func(X, y, w)
     print("Loss:", loss)
+
+    # n_samples, n_features, points, features, weights, headings
+    output(n_samples, n_features, points, features, w, headings)
 
 
 if __name__ == "__main__":
