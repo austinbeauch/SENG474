@@ -36,7 +36,7 @@ def loss_func(x, y, w):
     # return np.sum((y - w.T @ x)**2) / (2 * n)
 
 def output(n_samples, n_features, points, features, weights, headings):
-    with open(r"D:\out.tsv", "w+") as out_file:
+    with open(r"out.tsv", "w+") as out_file:
         out_file.write("{}\n{}\n{}\n".format(n_samples, n_features, headings))
 
         for p, f in zip(points, features):
