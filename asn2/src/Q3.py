@@ -6,9 +6,6 @@ import numpy as np
 from utils import timeit, loss_func, tsv_points_features, output
 
 
-# TODO: move to command line
-
-
 def stochastic_gradient_descent(n_features, n, X, y):
     m = 1
     if n_features == 100:
@@ -19,22 +16,21 @@ def stochastic_gradient_descent(n_features, n, X, y):
         ada = 10e-7
     
     w = np.random.random_sample(n_features)
-    # print(w)
-    y_bar = np.mean(y)
-    X = np.split(X, n / m)
-    y = np.split(y, n / m)
-    for label, features in zip(y, X):
-        features = features[0]
-        for j in range(n_features):
-            pass
-            # print(w[j])
-            # print(ada/m)
-            # print(label, y_bar)
-            # print(features[j])
-            # print((label - y_bar) * features[j])
-            # exit()
-            w[j] = w[j] + ((ada/m) * (np.sum((label - y_bar) * features[j])))
-    # print(w)
+    
+    for _ in range(T):
+        XX = np.split(X, n / m)
+        yy = np.split(y, n / m)
+        
+        for label, features in zip(yy, XX):
+            
+            xp = features[0]
+            yp = label
+            for j in range(n_features):
+
+                yp_hat = w.T @ xp
+                w[j] = w[j] + ada/m * (yp - yp_hat)*xp[j] 
+    
+    print(i)
     return w
 
 

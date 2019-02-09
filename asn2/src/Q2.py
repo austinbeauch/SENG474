@@ -14,7 +14,6 @@ def gradient_descent(n_features, n, X, y):
     print(type(X))
     for _ in range(T):
         w = w - (ada/n * ((X.T @ X @ w) - X.T @ y))
-    
     return w
 
 
