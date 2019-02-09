@@ -11,9 +11,10 @@ T = 200
 def gradient_descent(n_features, n, X, y):
     w = np.random.random_sample(n_features)
     ada = 1e-6
-    
+    print(type(X))
     for _ in range(T):
         w = w - (ada/n * ((X.T @ X @ w) - X.T @ y))
+    
     return w
 
 
@@ -29,18 +30,19 @@ def main(n_samples, n_features):
     X = features
     print("Grad")
     w = gradient_descent(n_features, n_samples, X, y)
+
     print("Loss")
     loss = loss_func(X, y, w)
     print("Loss:", loss)
 
     # n_samples, n_features, points, features, weights, headings
-    output(n_samples, n_features, points, features, w, headings)
+    # output(n_samples, n_features, points, features, w, headings)
 
 
 if __name__ == "__main__":
     try:
         n, f = int(sys.argv[1]), int(sys.argv[2])
     except IndexError:
-        n = 100
-        f = 300
+        n = 10
+        f = 100
     main(n, f)
