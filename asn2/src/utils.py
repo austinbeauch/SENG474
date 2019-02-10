@@ -43,4 +43,4 @@ def output(weights, fname):
             out_file.write("w{}\t".format(w + 1))
         out_file.write("w0\n")
         for weight in weights:
-            out_file.write("{}\t".format(weight))
+            out_file.write("{}".format(weight))
