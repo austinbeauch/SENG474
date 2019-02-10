@@ -10,9 +10,10 @@ from utils import timeit, loss_func, tsv_points_features, output
 def main(n_samples, n_features):
     data_path = "../data/data_{}k_{}.tsv".format(n_samples, n_features)
     n_samples *= 1000
-    points, features, headings = tsv_points_features(data_path)
 
-    print(features.shape)
+    points, features, headings = tsv_points_features(data_path)
+    
+    n_features = features.shape[-1]
 
     y = points
     X = features
@@ -22,13 +23,12 @@ def main(n_samples, n_features):
     loss = loss_func(X, y, w)
     print("Loss:", loss)
 
-    # n_samples, n_features, points, features, weights, headings
-    # output(n_samples, n_features, points, features, w, headings)
+    output(w, "Q1")
 
 
 if __name__ == "__main__":
     try:
-        n, f = sys.argv[1], sys.argv[2]
+        n, f = int(sys.argv[1]), int(sys.argv[2])
     except IndexError:
         n = "100"
         f = "300"

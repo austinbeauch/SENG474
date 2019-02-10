@@ -2,6 +2,7 @@ import sys
 from pprint import pprint
 
 import numpy as np
+np.random.seed(69)
 
 from utils import timeit, loss_func, tsv_points_features, output
 
@@ -20,17 +21,19 @@ def gradient_descent(n_features, n, X, y):
 def main(n_samples, n_features):
     data_path = "../data/data_{}k_{}.tsv".format(n_samples, n_features)
     n_samples *= 1000
+    
     points, features, headings = tsv_points_features(data_path)
-
+    n_features = features.shape[-1]
+    
     y = points
     X = features
+    
     w = gradient_descent(n_features, n_samples, X, y)
 
     loss = loss_func(X, y, w)
     print("Loss:", loss)
 
-    # n_samples, n_features, points, features, weights, headings
-    # output(n_samples, n_features, points, features, w, headings)
+    output(w, "Q2")
 
 
 if __name__ == "__main__":

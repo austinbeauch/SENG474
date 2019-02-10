@@ -22,6 +22,10 @@ def tsv_points_features(path):
     
     points = data[:, 0]
     features = data[:, 1:]
+    
+    ones = np.ones((len(features), 1))
+    features = np.append(features, ones, axis=1)
+    
     return points, features, headings
 
 
@@ -33,15 +37,10 @@ def loss_func(x, y, w):
         total += (yi - w.T @ xi)**2
     return total / (2 * n)
 
-    # return np.sum((y - w.T @ x)**2) / (2 * n)
-
-def output(n_samples, n_features, points, features, weights, headings):
-    with open(r"out.tsv", "w+") as out_file:
-        out_file.write("{}\n{}\n{}\n".format(n_samples, n_features, headings))
-
-        for p, f in zip(points, features):
-            out_file.write("{}\t".format(p))
-            regressed = f * weights
-            for r in regressed:
-                out_file.write("{}\t".format(int(r)))
-            out_file.write("\n")
+def output(weights, fname):
+    with open(r"{}_out.tsv".format(fname), "w+") as out_file:
+        for w in range(len(weights))[:-1]:
+            out_file.write("w{}\t".format(w + 1))
+        out_file.write("w0\n")
+        for weight in weights:
+            out_file.write("{}\t".format(weight))
