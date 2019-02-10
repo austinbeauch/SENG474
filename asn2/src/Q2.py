@@ -10,8 +10,7 @@ T = 200
 
 def gradient_descent(n_features, n, X, y):
     w = np.random.random_sample(n_features)
-    ada = 1e-6
-    print(type(X))
+    ada = 0.000001 
     for _ in range(T):
         w = w - (ada/n * ((X.T @ X @ w) - X.T @ y))
     return w
@@ -23,14 +22,10 @@ def main(n_samples, n_features):
     n_samples *= 1000
     points, features, headings = tsv_points_features(data_path)
 
-    print(features.shape)
-
     y = points
     X = features
-    print("Grad")
     w = gradient_descent(n_features, n_samples, X, y)
 
-    print("Loss")
     loss = loss_func(X, y, w)
     print("Loss:", loss)
 
