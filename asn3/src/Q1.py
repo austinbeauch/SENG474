@@ -29,7 +29,8 @@ def find_dead_ends(graph):
         updated = False
         for node in graph:
             if len(graph[node]) == 0 and node not in dead_end:
-                 dead_end.add(node)
+                updated = True
+                dead_end.add(node)
 
         # second pass finding all nodes whose outgoing edges are all to dead ends
         for node in graph:
