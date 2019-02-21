@@ -7,28 +7,6 @@ import numpy as np
 from utils import timeit, lines, output
 
 
-def find_dead_ends(graph):
-    dead_end = set()        
-    while True:
-        # first pass finding all nodes with no outgoing edge
-        updated = False
-        for node in graph:
-            if len(graph[node]) == 0:
-                if node not in dead_end:
-                    updated = True
-                dead_end.add(node)
-
-        # second pass finding all nodes whose outgoing edges are all to dead ends
-        for node in graph:
-            if graph[node].issubset(dead_end):
-                if node not in dead_end:
-                    updated = True
-                dead_end.add(node)
-        if not updated:
-            break
-    return dead_end
-
-
 def build_graph(data):
     graph = {}
     for node1, node2 in data:
@@ -40,7 +18,29 @@ def build_graph(data):
             graph[node1].add(node2)
         if node2 not in graph:
             graph[node2] = set()
-    return graph    
+    return graph  
+
+
+def find_dead_ends(graph):
+    dead_end = set()        
+    
+    while True:    
+        # first pass finding all nodes with no outgoing edge
+        updated = False
+        for node in graph:
+            if len(graph[node]) == 0 and node not in dead_end:
+                 dead_end.add(node)
+
+        # second pass finding all nodes whose outgoing edges are all to dead ends
+        for node in graph:
+            if graph[node].issubset(dead_end) and node not in dead_end:
+                updated = True
+                dead_end.add(node)
+        
+        if not updated:
+            break
+    
+    return dead_end  
 
 
 @timeit
