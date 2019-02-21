@@ -17,5 +17,9 @@ def lines(path):
     lines = [line.rstrip("\n") for line in open(path, encoding="utf8")]
     metadata = lines[:3]
     data = [line.split() for line in lines[4:]]
-    data = np.array(data, dtype=int)
     return data
+
+def output(nodes, num):
+	with open(r"PR_{}k.txt".format(num), "w+") as out_file:
+		for node in nodes:
+			out_file.write("{}\n".format(node))

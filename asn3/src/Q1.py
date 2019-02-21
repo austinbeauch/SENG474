@@ -4,7 +4,43 @@ from pprint import pprint
 
 import numpy as np
 
-from utils import timeit, lines
+from utils import timeit, lines, output
+
+
+def find_dead_ends(graph):
+    dead_end = set()        
+    while True:
+        # first pass finding all nodes with no outgoing edge
+        updated = False
+        for node in graph:
+            if len(graph[node]) == 0:
+                if node not in dead_end:
+                    updated = True
+                dead_end.add(node)
+
+        # second pass finding all nodes whose outgoing edges are all to dead ends
+        for node in graph:
+            if graph[node].issubset(dead_end):
+                if node not in dead_end:
+                    updated = True
+                dead_end.add(node)
+        if not updated:
+            break
+    return dead_end
+
+
+def build_graph(data):
+    graph = {}
+    for node1, node2 in data:
+        node1 = int(node1)
+        node2 = int(node2)
+        if node1 not in graph:
+            graph[node1] = {node2}
+        else:
+            graph[node1].add(node2)
+        if node2 not in graph:
+            graph[node2] = set()
+    return graph    
 
 
 @timeit
@@ -12,60 +48,13 @@ def main(fname):
     file_path = "../data/{}.txt".format(fname)
     data = lines(file_path)
 
-    edges = {}
-    for node1, node2 in data:
-        if node1 not in edges:
-            edges[node1] = [node2]
-        else:
-            edges[node1].append(node2)
-        if node2 not in edges:
-            edges[node2] = []
+    graph = build_graph(data)
+    dead_ends = find_dead_ends(graph)
     
-    # print(edges)
-    print("Built")
-
-    dead_end = []
-    while True:
-        updated = False
-        new_dead = []
-
-        start = time.time()
-        for node in edges:
-            outgoing = edges[node]
-            
-            if len(outgoing) == 0:
-                updated = True
-                dead_end.append(node)
-                new_dead.append(node)
-        
-        print("Loop1", time.time()-start)
-        
-        if not updated:
-            break
+    print(len(dead_ends), "dead ends")
     
-        start = time.time()
-        edges = dict([(k, v) for k, v in edges.items() if len(v) > 0])
-        print("Loop2", time.time()-start)
-        
-        start = time.time()
-        # this takes way too long on the full set
-        # baseline 31s with printing
-        for i, node in enumerate(edges):
-            # print(i)
-            try:
-                # exemaple removal, need to remove every previously removed dead end
-                # edges[node] = list(set(edges[node]).difference(new_dead)) -> too long
-                edges[node].remove(5)
-            except:
-                pass
-        print("Loop3", time.time()-start)
-
-    print(len(dead_end))
-
+    output(sorted(dead_ends), "10" if len(graph) == 10000 else "800")
 
 if __name__ == "__main__":
-    try:
-        x = sys.argv[1]
-    except IndexError:
-        x = "toy"
-    main(x)
+    main("web-Google_10k")
+    main("web-Google")
