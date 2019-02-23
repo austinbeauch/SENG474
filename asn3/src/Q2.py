@@ -36,6 +36,10 @@ def page_rank_with_dead_ends(graph, deadless_graph, dead_ends_ordered):
 
     for dead_end in dead_ends_ordered[::-1]:
         print(dead_end)
+        for end in dead_end:
+            for node in graph:
+                pass
+            # re add to graph      
 
     return v
 
