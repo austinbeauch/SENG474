@@ -1,5 +1,6 @@
 import sys
 import time
+import copy
 from pprint import pprint
 
 import numpy as np
@@ -22,26 +23,42 @@ def build_graph(data):
 
 
 def find_dead_ends(graph):
-    dead_end = set()        
+    dead_end = set() 
+    dead_end_ordered = []
+    graph_copy = copy.deepcopy(graph)
+
+    # first pass finding all nodes with no outgoing edge      
+    order_1 = []
+    for node in graph:
+        if len(graph[node]) == 0 and node not in dead_end:
+            dead_end.add(node)  
+            order_1.append(node)
+            del(graph_copy[node])
     
+    if len(order_1) > 0:
+        dead_end_ordered.append(order_1)
+
     while True:    
-        # first pass finding all nodes with no outgoing edge
         updated = False
-        for node in graph:
-            if len(graph[node]) == 0 and node not in dead_end:
-                updated = True
-                dead_end.add(node)
 
         # second pass finding all nodes whose outgoing edges are all to dead ends
+        next_removal = []
         for node in graph:
             if graph[node].issubset(dead_end) and node not in dead_end:
                 updated = True
                 dead_end.add(node)
-        
+                next_removal.append(node)
+                del(graph_copy[node])
+
         if not updated:
             break
+
+        dead_end_ordered.append(next_removal)
     
-    return dead_end  
+    for node in graph_copy:
+        graph_copy[node] = graph_copy[node].difference(dead_end) 
+
+    return dead_end_ordered, graph_copy  
 
 
 @timeit
@@ -50,12 +67,15 @@ def main(fname):
     data = lines(file_path)
 
     graph = build_graph(data)
-    dead_ends = find_dead_ends(graph)
-    
+    dead_ends = find_dead_ends(graph)[0]
+
+    dead_ends = np.hstack(dead_ends)
+
     print(len(dead_ends), "dead ends")
-    
+
     output(sorted(dead_ends), "10" if len(graph) == 10000 else "800")
 
 if __name__ == "__main__":
-    main("web-Google_10k")
-    main("web-Google")
+    main("toy")
+    # main("web-Google_10k")
+    # main("web-Google")
