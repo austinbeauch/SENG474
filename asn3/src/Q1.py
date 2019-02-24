@@ -19,13 +19,15 @@ def build_graph(data):
             graph[node1].add(node2)
         if node2 not in graph:
             graph[node2] = set()
-    return graph  
+    return graph
 
 
 def find_dead_ends(graph):
     dead_end = set() 
     dead_end_ordered = []
-    graph_copy = copy.deepcopy(graph)
+    no_dead_ends_graph = copy.deepcopy(graph)
+
+    stack = []
 
     # first pass finding all nodes with no outgoing edge      
     order_1 = []
@@ -33,7 +35,7 @@ def find_dead_ends(graph):
         if len(graph[node]) == 0 and node not in dead_end:
             dead_end.add(node)  
             order_1.append(node)
-            del(graph_copy[node])
+            del(no_dead_ends_graph[node])
     
     if len(order_1) > 0:
         dead_end_ordered.append(order_1)
@@ -48,17 +50,17 @@ def find_dead_ends(graph):
                 updated = True
                 dead_end.add(node)
                 next_removal.append(node)
-                del(graph_copy[node])
+                del(no_dead_ends_graph[node])
 
         if not updated:
             break
 
         dead_end_ordered.append(next_removal)
     
-    for node in graph_copy:
-        graph_copy[node] = graph_copy[node].difference(dead_end) 
+    for node in no_dead_ends_graph:
+        no_dead_ends_graph[node] = no_dead_ends_graph[node].difference(dead_end) 
 
-    return dead_end_ordered, graph_copy  
+    return dead_end_ordered, no_dead_ends_graph  
 
 
 @timeit

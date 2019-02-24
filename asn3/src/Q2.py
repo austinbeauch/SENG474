@@ -28,18 +28,19 @@ def page_rank(graph):
 
 def page_rank_with_dead_ends(graph, deadless_graph, dead_ends_ordered):
     v = 1 # page_rank(deadless_graph)
-
+    dead_ends = set(np.hstack(dead_ends_ordered))
+    
     # insert recently removed guys
+    print(set(dead_ends))
     # print(dead_ends_ordered)
+    # print(graph)
     # print(deadless_graph)
-    print()
+    # print()
 
-    for dead_end in dead_ends_ordered[::-1]:
-        print(dead_end)
-        for end in dead_end:
-            for node in graph:
-                pass
-            # re add to graph      
+    for end in dead_ends_ordered[::-1]:
+        print(end)
+        end = set(end)
+        dead_ends = dead_ends.difference(end)
 
     return v
 
