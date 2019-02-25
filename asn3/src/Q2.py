@@ -4,56 +4,87 @@ from pprint import pprint
 
 import numpy as np
 
-from utils import timeit, lines, output
-from Q1 import build_graph, find_dead_ends
+from utils import timeit, lines, output, output_page_rank
+from Q1 import find_dead_ends
 
 
-T = 1
+T = 10
 beta = 0.85
 
 
-def page_rank(graph):
-    n = len(graph)
+def build_graphs(data):
+    outgoing = {}
+    incoming = {}
+
+    for node1, node2 in data:
+        node1 = int(node1)
+        node2 = int(node2)
+        if node1 not in outgoing:
+            outgoing[node1] = {node2}
+        else:
+            outgoing[node1].add(node2)
+        if node2 not in outgoing:
+            outgoing[node2] = set()
+
+        if node2 not in incoming:
+            incoming[node2] = {node1}
+        else:
+            incoming[node2].add(node1)
+        if node1 not in incoming:
+            incoming[node1] = set()
+    
+    return outgoing, incoming
+
+
+def page_rank(outgoing_graph, incoming_graph, dead_ends):
+    n = len(outgoing_graph) - len(dead_ends)
+    print(n)
     initial_rank = 1 / n
     v = dict()
+    v_tmp = dict()
     
     # initialize all pageranks
-    for node in graph:
+    for node in outgoing_graph:
         v[node] = initial_rank
 
-
     for _ in range(T):
-        for i in graph:
-            outgoing = graph[i]
+        for i in outgoing_graph:
+            if i in dead_ends:
+                continue
+
+            incoming = incoming_graph[i].difference(dead_ends)
             summation = 0
-            for j in outgoing:
-                v_j = v[j]
-                out_deg_j = len(graph[j])
-                summation += (v_j / out_deg_j) + ((1 - beta) * initial_rank)
-            v[i] = beta * summation
+            for j in incoming:
+
+                out_deg_j = len(outgoing_graph[j].difference(dead_ends))
+                summation += (v[j] / out_deg_j) + ((1 - beta) * initial_rank)
+            
+            v_tmp[i] = beta * summation
+
+        for key in v_tmp:
+            v[key] = v_tmp[key]
 
     return v
 
 @timeit
-def page_rank_with_dead_ends(graph, deadless_graph, dead_ends_ordered):
-    v = page_rank(deadless_graph)
+def page_rank_with_dead_ends(outgoing_graph, incoming_graph, dead_ends_ordered):
     dead_ends = set(np.hstack(dead_ends_ordered))
-    return
-    # insert recently removed guys
-    print(set(dead_ends))
-    # print(dead_ends_ordered)
-    # print(graph)
-    # print(deadless_graph)
-    # print()
+    v = page_rank(outgoing_graph, incoming_graph, dead_ends)
 
     for end in dead_ends_ordered[::-1]:
-        print(end)
         end = set(end)
         dead_ends = dead_ends.difference(end)
 
-        # computre page rank for dead ends in order
-        # for dead in end:
-        #  computre v[i] shit
+        for i in end:
+            summation = 0
+
+            incoming = incoming_graph[i].difference(dead_ends)
+            
+            for j in incoming:
+                out_deg_j = len(outgoing_graph[j].difference(dead_ends))
+                summation += v[j] / out_deg_j
+            
+            v[i] = summation
 
     return v
 
@@ -63,15 +94,20 @@ def main(fname):
     file_path = "../data/{}.txt".format(fname)
     data = lines(file_path)
 
-    graph = build_graph(data)
-    dead_ends_ordered, deadless_graph = find_dead_ends(graph)
+    outgoing_graph, incoming_graph = build_graphs(data)
+    # print(outgoing_graph)
+    # print(incoming_graph)
 
-    v = page_rank_with_dead_ends(graph, deadless_graph, dead_ends_ordered)
+    dead_ends_ordered = find_dead_ends(outgoing_graph)
+
+    v = page_rank_with_dead_ends(outgoing_graph, incoming_graph, dead_ends_ordered)
+    pprint(v)
+    # output_page_rank(v, "10" if len(graph) == 10000 else "800")
 
 
 if __name__ == "__main__":
-    # main("toy")
+    main("toy")
     print()
-    main("web-Google_10k")
+    # main("web-Google_10k")
     print()
-    main("web-Google")
+    # main("web-Google")

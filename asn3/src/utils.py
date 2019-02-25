@@ -1,4 +1,5 @@
 import time
+import operator
 
 import numpy as np
 
@@ -20,6 +21,13 @@ def lines(path):
     return data
 
 def output(nodes, num):
-	with open(r"PR_{}k.txt".format(num), "w+") as out_file:
+	with open(r"deadends_{}k.txt".format(num), "w+") as out_file:
 		for node in nodes:
 			out_file.write("{}\n".format(node))
+
+def output_page_rank(ranks, num):
+	sorted_ranks = sorted(ranks.items(), key=lambda kv: kv[1], reverse=True)
+	with open(r"PR_{}k.txt".format(num), "w+") as out_file:
+		out_file.write("PageRank\tIds\n")
+		for node, rank in sorted_ranks:
+			out_file.write("{}\t{}\n".format(rank, node))
