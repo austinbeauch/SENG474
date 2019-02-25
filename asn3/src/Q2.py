@@ -57,9 +57,9 @@ def page_rank(outgoing_graph, incoming_graph, dead_ends):
             for j in incoming:
 
                 out_deg_j = len(outgoing_graph[j].difference(dead_ends))
-                summation += (v[j] / out_deg_j) + ((1 - beta) * initial_rank)
+                summation += v[j] / out_deg_j
             
-            v_tmp[i] = beta * summation
+            v_tmp[i] = beta * summation + (1 - beta) * initial_rank
 
         for key in v_tmp:
             v[key] = v_tmp[key]
@@ -101,13 +101,13 @@ def main(fname):
     dead_ends_ordered = find_dead_ends(outgoing_graph)
 
     v = page_rank_with_dead_ends(outgoing_graph, incoming_graph, dead_ends_ordered)
-    pprint(v)
-    # output_page_rank(v, "10" if len(graph) == 10000 else "800")
+    # pprint(v)
+    output_page_rank(v, "10" if len(outgoing_graph) == 10000 else "800")
 
 
 if __name__ == "__main__":
     main("toy")
     print()
-    # main("web-Google_10k")
+    main("web-Google_10k")
     print()
-    # main("web-Google")
+    main("web-Google")
