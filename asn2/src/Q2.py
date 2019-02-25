@@ -19,7 +19,7 @@ def gradient_descent(n_features, n, X, y):
 
 @timeit
 def main(n_samples, n_features):
-    data_path = "../data/data_{}k_{}.tsv".format(n_samples, n_features)
+    data_path = "data_{}k_{}.tsv".format(n_samples, n_features)
     n_samples *= 1000
     
     points, features, headings = tsv_points_features(data_path)
