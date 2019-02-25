@@ -6,3 +6,8 @@ question*
 
 data_100k_300.tsv
 web-Google.txt
+PR_10k.txt
+PR_800k.txt
+deadends_10k.txt
+deadends_800k.txt
+sample_output_800k.tsv
