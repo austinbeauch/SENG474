@@ -8,28 +8,37 @@ from utils import timeit, lines, output
 from Q1 import build_graph, find_dead_ends
 
 
+T = 1
+beta = 0.85
+
+
 def page_rank(graph):
     n = len(graph)
-    v = 1/n * np.ones((int(n)))
+    initial_rank = 1 / n
+    v = dict()
+    
+    # initialize all pageranks
+    for node in graph:
+        v[node] = initial_rank
 
-    beta = 0.85
-    for i in range(n):
-        summation = 0
-        for j in range(n):
-            try:
-                summation += (v[j] / len(graph[j])) + (1 - beta) * (1 / n)
-            except KeyError:
-                pass
 
-        v[i] = beta * summation
+    for _ in range(T):
+        for i in graph:
+            outgoing = graph[i]
+            summation = 0
+            for j in outgoing:
+                v_j = v[j]
+                out_deg_j = len(graph[j])
+                summation += (v_j / out_deg_j) + ((1 - beta) * initial_rank)
+            v[i] = beta * summation
 
     return v
 
-
+@timeit
 def page_rank_with_dead_ends(graph, deadless_graph, dead_ends_ordered):
-    v = 1 # page_rank(deadless_graph)
+    v = page_rank(deadless_graph)
     dead_ends = set(np.hstack(dead_ends_ordered))
-    
+    return
     # insert recently removed guys
     print(set(dead_ends))
     # print(dead_ends_ordered)
@@ -41,6 +50,10 @@ def page_rank_with_dead_ends(graph, deadless_graph, dead_ends_ordered):
         print(end)
         end = set(end)
         dead_ends = dead_ends.difference(end)
+
+        # computre page rank for dead ends in order
+        # for dead in end:
+        #  computre v[i] shit
 
     return v
 
@@ -57,8 +70,8 @@ def main(fname):
 
 
 if __name__ == "__main__":
-    main("toy")
+    # main("toy")
     print()
-    # main("web-Google_10k")
+    main("web-Google_10k")
     print()
-    # main("web-Google")
+    main("web-Google")
