@@ -38,7 +38,6 @@ def build_graphs(data):
 
 def page_rank(outgoing_graph, incoming_graph, dead_ends):
     n = len(outgoing_graph) - len(dead_ends)
-    print(n)
     initial_rank = 1 / n
     v = dict()
     v_tmp = dict()
@@ -70,22 +69,17 @@ def page_rank(outgoing_graph, incoming_graph, dead_ends):
 def page_rank_with_dead_ends(outgoing_graph, incoming_graph, dead_ends_ordered):
     dead_ends = set(np.hstack(dead_ends_ordered))
     v = page_rank(outgoing_graph, incoming_graph, dead_ends)
-
     for end in dead_ends_ordered[::-1]:
         end = set(end)
         dead_ends = dead_ends.difference(end)
-
         for i in end:
             summation = 0
-
             incoming = incoming_graph[i].difference(dead_ends)
-            
             for j in incoming:
-                out_deg_j = len(outgoing_graph[j].difference(dead_ends))
+                out_deg_j = len(outgoing_graph[j])
                 summation += v[j] / out_deg_j
             
             v[i] = summation
-
     return v
 
 
@@ -95,13 +89,9 @@ def main(fname):
     data = lines(file_path)
 
     outgoing_graph, incoming_graph = build_graphs(data)
-    # print(outgoing_graph)
-    # print(incoming_graph)
 
     dead_ends_ordered = find_dead_ends(outgoing_graph)
-
     v = page_rank_with_dead_ends(outgoing_graph, incoming_graph, dead_ends_ordered)
-    # pprint(v)
     output_page_rank(v, "10" if len(outgoing_graph) == 10000 else "800")
 
 
