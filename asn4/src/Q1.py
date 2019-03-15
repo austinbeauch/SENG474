@@ -11,13 +11,9 @@ from utils import *
 T = 20
 
 
-def get_sparse(d):
-    sparse = dict()
+def get_sparse(d, n, m):
+    user_movie_rating = dict()
 
-    user_id = d.T[0]  
-    movie_id = d.T[1]
-    m = movie_id.max()
-    n = user_id.max()
     matrix = np.full((n, m), -1)
 
     # N[movie] = user
@@ -27,9 +23,9 @@ def get_sparse(d):
         user, movie, rating = line[:3]
         
         # dictionary
-        if user not in sparse:
-            sparse[user] = dict()
-        sparse[user][movie] = rating
+        if user not in user_movie_rating:
+            user_movie_rating[user] = dict()
+        user_movie_rating[user][movie] = rating
         
         if movie not in N:
             # change to dict with rating values if needed
@@ -37,35 +33,77 @@ def get_sparse(d):
         N[movie].append(user)
 
         # matrix
-        user -= 1
-        movie -= 1
         matrix[user][movie] = rating
 
-    print(matrix)
-    return sparse
+    # return user_movie_rating
+    return matrix, N
 
 
-def uv_decomposition(M, n, m, d):
+def eq_25(i, k, N, U, V, M):
+    # i = movie
+    # j = user that rated movie i
+    for movie in N:
+        j = N[movie]
+        numer = 0
+        denom = 0
+        for i in j:
+            U_k = np.delete(U[i], k) # with k element removed
+            V_k = np.delete(V[j], k)
+            numer += (U_k @ V_k - M[i][j]) * U[j][k] 
+        for j in i:
+            denom += U[i][k]**2
+        yi = - numer / denom
+    
+    return yi
+
+
+def eq_24(i, k, N, U, V, M):
+    # i = movie
+    # j = user that rated movie i
+    numer = 0
+    denom = 0
+    print(U.shape, V.shape)
+    for j in N[i]:
+
+        U_k = np.delete(U[i], k) # with k element removed
+        V_k = np.delete(V[:, j], k)  # taking column vector
+
+        try:
+            print(M)
+            print(i, j)
+            print(M[i][j])
+            print()
+            numer += (U_k @ V_k - M[i][j]) * V[j][k] 
+        except:
+            exit()
+        
+    print("done")
+    exit()
+    
+    return xi
+
+
+def uv_decomposition(M, n, m, d, N):
     u = np.random.random_sample((n, d))
     v = np.random.random_sample((d, m))
-    print(u.shape, v.shape)
 
     for _ in range(T):
         for k in range(d):
+            x= []
+
             for i in range(n):
-                # eq 24
-                pass
+                x.append(eq_24(i, k, N, u, v, M))
             for i in range(n):
-                # u[i][k] = x[i]
-                pass
+                u[i][k] = x[i]
         
         for k in range(d):
+            y = []
+
             for j in range(m):
-                # eq 25
-                pass
+                y.append(eq_25(i, k, N, u, v, M))
+                
             for j in range(n):
-                # v[k][j] = y[j]
-                pass
+                v[k][j] = y[j]
 
     return u, v
 
@@ -76,17 +114,17 @@ def main(fname="u.data"):
     data = lines(file_path)
     data = np.array(data, dtype=np.int32)
 
-    sparse = get_sparse(data)
+    user_id = data.T[0]  
+    movie_id = data.T[1]
+    rating = data.T[2]
 
-    # user_id = data.T[0]  
-    # movie_id = data.T[1]
-    # rating = data.T[2]
+    m = movie_id.max() + 1
+    n = user_id.max() + 1
 
-    # m = movie_id.max()
-    # n = user_id.max()
+    M, N = get_sparse(data, n, m)
 
-    # d = 20
-    # U, V = uv_decomposition(data, n, m, d)
+    d = 2
+    U, V = uv_decomposition(M, n, m, d, N)
 
 if __name__ == "__main__":
     # main("toy_rating.data")
