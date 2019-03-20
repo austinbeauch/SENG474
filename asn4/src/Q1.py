@@ -4,16 +4,15 @@ import copy
 from pprint import pprint
 
 import numpy as np
-np.random.seed(42)
+np.random.seed(420)
 
 from utils import *
 
 
-T = 20
+T = 1
 
 
-def get_sparse(d, n, m):
-    user_movie_rating = dict()
+def get_sparse(d, n, m, user_id, movie_id):
 
     matrix = np.full((n, m), float('nan'))
 
@@ -25,12 +24,9 @@ def get_sparse(d, n, m):
 
     for line in d:
         user, movie, rating = line[:3]
-        
-        # dictionary
-        if user not in user_movie_rating:
-            user_movie_rating[user] = dict()
-        user_movie_rating[user][movie] = rating
-        
+        i = np.where(user_id==user)[0][0]
+        j = np.where(movie_id==movie)[0][0]
+       
         if movie not in N_j:
             N_j[movie] = []
         N_j[movie].append(user)
@@ -40,42 +36,46 @@ def get_sparse(d, n, m):
         N_i[user].append(movie)
 
         # matrix
-        matrix[user][movie] = rating
+        matrix[i][j] = rating
 
     # return user_movie_rating
     return matrix, N_j, N_i
 
 
-def eq_24(i, k, N_i, U, V, M):
+def eq_24(i, k, N_i, U, V, M, user_id, movie_id):
     # i = person
     # j = movie
     numer = 0
     denom = 0
 
-    for j in N_i[i]:
+    for movie in N_i[user_id[i]]:
+        j = np.where(movie_id==movie)[0][0]
         U_k = np.delete(U[i], k)  # with k element removed
         V_k = np.delete(V[:, j], k)  # taking column vector
         numer += (U_k @ V_k - M[i][j]) * V[k][j] 
     
-    for j in N_i[i]:  
+    for movie in N_i[user_id[i]]:
+        j = np.where(movie_id==movie)[0][0]
         denom += V[k][j]**2
 
     xi = - numer / denom
     return xi
 
 
-def eq_25(j, k, N_j, U, V, M):
+def eq_25(j, k, N_j, U, V, M, user_id, movie_id):
     # i = movie
     # j = user that rated movie i
     numer = 0
     denom = 0
 
-    for i in N_j[j]:
+    for user in N_j[movie_id[j]]:
+        i = np.where(user_id==user)[0][0]
         U_k = np.delete(U[i], k)  # with k element removed
         V_k = np.delete(V[:, j], k)  # taking column vector
         numer += (U_k @ V_k - M[i][j]) * U[i][k] 
     
-    for i in N_j[j]:  
+    for user in N_j[movie_id[j]]:
+        i = np.where(user_id==user)[0][0]  
         denom += U[i][k]**2
 
     yi = - numer / denom
@@ -89,23 +89,23 @@ def uv_decomposition(M, n, m, d, N_j, N_i, user_id, movie_id):
     for _ in range(T):
         for k in range(d):
             x = []
-            for i in user_id:
-                x.append(eq_24(i, k, N_i, u, v, M))
-            for i in user_id:
+            for i in range(n): # not , before unique 0,1,2,3,...
+                x.append(eq_24(i, k, N_i, u, v, M, user_id, movie_id))
+            for i in range(n):
                 u[i][k] = x[i]
         
         for k in range(d):
             y = []
-            for j in movie_id:
-                y.append(eq_25(j, k, N_j, u, v, M))
-            for j in movie_id:
+            for j in range(m):
+                y.append(eq_25(j, k, N_j, u, v, M, user_id, movie_id))
+            for j in range(m):
                 v[k][j] = y[j]
 
     return u, v
 
 @timeit
 def main(fname="u.data"):
-    fname = "toy_rating.data"
+    # fname = "toy_rating.data"
     file_path = "../data/{}".format(fname)
     data = lines(file_path)
     data = np.array(data, dtype=np.int32)
@@ -113,19 +113,22 @@ def main(fname="u.data"):
     user_id = data.T[0]  
     movie_id = data.T[1]
     rating = data.T[2]
-
-    m = movie_id.max() + 1
-    n = user_id.max() + 1
+    
+    user_id = np.unique(user_id)
+    movie_id = np.unique(movie_id)
+    
+    m = len(movie_id)
+    n = len(user_id)
 
     print(m, n)
 
-    M, N_j, N_i = get_sparse(data, n, m)
+    M, N_j, N_i = get_sparse(data, n, m, user_id, movie_id)
 
-    d = 2
+    d = 20
     U, V = uv_decomposition(M, n, m, d, N_j, N_i, user_id, movie_id)
 
     print(M)
-
+   
     predicted = U @ V
     print(predicted)
     rmse = np.sqrt(np.nanmean((M - predicted)**2))
