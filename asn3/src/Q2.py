@@ -69,23 +69,27 @@ def page_rank(outgoing_graph, incoming_graph, dead_ends):
 def page_rank_with_dead_ends(outgoing_graph, incoming_graph, dead_ends_ordered):
     dead_ends = set(np.hstack(dead_ends_ordered))
     v = page_rank(outgoing_graph, incoming_graph, dead_ends)
+
     for end in dead_ends_ordered[::-1]:
         end = set(end)
         dead_ends = dead_ends.difference(end)
+
         for i in end:
             summation = 0
             incoming = incoming_graph[i].difference(dead_ends)
+
             for j in incoming:
                 out_deg_j = len(outgoing_graph[j])
                 summation += v[j] / out_deg_j
             
             v[i] = summation
+            
     return v
 
 
 def main(fname):
     print(fname)
-    file_path = "../data/{}.txt".format(fname)
+    file_path = "{}.txt".format(fname)
     data = lines(file_path)
 
     outgoing_graph, incoming_graph = build_graphs(data)
@@ -96,8 +100,5 @@ def main(fname):
 
 
 if __name__ == "__main__":
-    main("toy")
-    print()
     main("web-Google_10k")
-    print()
     main("web-Google")
