@@ -9,7 +9,7 @@ np.random.seed(420)
 from utils import *
 
 
-T = 1
+T = 5
 
 
 def get_sparse(d, n, m, user_id, movie_id):
@@ -40,7 +40,6 @@ def get_sparse(d, n, m, user_id, movie_id):
 
     # return user_movie_rating
     return matrix, N_j, N_i
-
 
 def eq_24(i, k, N_i, U, V, M, user_id, movie_id):
     # i = person
@@ -93,13 +92,13 @@ def uv_decomposition(M, n, m, d, N_j, N_i, user_id, movie_id):
                 x.append(eq_24(i, k, N_i, u, v, M, user_id, movie_id))
             for i in range(n):
                 u[i][k] = x[i]
-        
-        for k in range(d):
+
             y = []
             for j in range(m):
                 y.append(eq_25(j, k, N_j, u, v, M, user_id, movie_id))
             for j in range(m):
                 v[k][j] = y[j]
+            print(k)
 
     return u, v
 
