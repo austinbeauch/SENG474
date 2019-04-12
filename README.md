@@ -1,3 +1,3 @@
 # SENG474 #
 
-Stephen Moccasin and Austin Rochambeau
+[Stephen Scinocca](https://github.com/StephenScinocca) and [Austin Beauchamp](https://github.com/austinbeauch) SENG474 assignment directory. 
