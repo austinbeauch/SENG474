@@ -18,4 +18,4 @@ Assignments are as follows:
 - Part 2: PageRank algorithm
 
 4: UV-decomposition for recommendation systems
-- Part 1: Factorize the utility matrix into two matrix U and V.
+- Part 1: Factorize the utility matrix into two matrices: U and V.
